@@ -1,0 +1,63 @@
+{
+  "name": "hapi-intacct",
+  "version": "0.0.0",
+  "description": "A hapi plugin to interface with Intacct API",
+  "license": "MIT",
+  "repository": "https://github.com/trainerbill/hapi-paypal",
+  "author": "Arjun Shukla",
+  "keywords": [],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "clean": "rimraf lib coverage",
+    "lint": "tslint --force --format verbose \"src/**/*.ts\"",
+    "build": "npm run clean && npm run lint && echo Using TypeScript && tsc --version && tsc --pretty",
+    "test": "nyc tape test/**/*-spec.ts | tap-spec; nyc report ---reporter=text",
+    "watch": "npm run build -- --watch",
+    "watch:test": "npm run test -- --watch",
+    "release": "npm test && npm run build && npm version --",
+    "release:quick": "npm test && npm run build && git add -A && git commit -m 'Quick Release Patch' && npm version patch && git push --tags",
+    "postversion": "npm publish && git push && git push --tags",
+    "reinstall": "rimraf node_modules package-lock.json && npm install",
+    "start": "ts-node ./test/server.ts"
+  },
+  "dependencies": {
+    "intacct-api": "^0.2.1",
+    "joi": "^10.6.0"
+  },
+  "peerDependencies": {
+    "mongoose": "^4.11.3"
+  },
+  "devDependencies": {
+    "@types/blue-tape": "^0.1.31",
+    "@types/dotenv": "^4.0.0",
+    "@types/hapi": "^16.1.7",
+    "@types/joi": "^10.4.0",
+    "@types/mongoose": "^4.7.19",
+    "@types/node": "^8.0.17",
+    "@types/sinon": "^2.3.3",
+    "@types/tape": "^4.2.30",
+    "blue-tape": "^1.0.0",
+    "coveralls": "^2.0.0",
+    "dotenv": "^4.0.0",
+    "good": "^7.2.0",
+    "good-console": "^6.4.0",
+    "good-squeeze": "^5.0.2",
+    "hapi": "^16.4.3",
+    "mongoose": "^4.11.4",
+    "nyc": "^11.1.0",
+    "rimraf": "^2.0.0",
+    "sinon": "^2.4.1",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.7.0",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.0.0",
+    "typescript": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  }
+}
