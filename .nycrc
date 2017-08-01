@@ -1,0 +1,19 @@
+{
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "lib",
+      "src/**/*.d.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "lcov"
+    ],
+    "all": true
+  }
