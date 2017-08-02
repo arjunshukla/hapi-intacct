@@ -1,38 +1,46 @@
 import * as hapi from "hapi";
-import * as paypal from "paypal-rest-sdk";
 export declare type Partial<T> = {
     [P in keyof T]?: T[P];
 };
-export interface IHapiPayPalOptions {
-    sdk: any;
-    routes?: [Partial<IPayPalRouteConfiguration>];
-    webhook?: paypal.notification.webhook.Webhook;
+export interface IHapiIntacctOptions {
+    sdk: IntacctSDKConfiguration;
+    routes?: [Partial<IIntacctRouteConfiguration>];
+    cron?: any;
 }
-export interface IPayPalRouteConfiguration extends hapi.RouteConfiguration {
-    handler?: IPayPalRouteHandler;
+export interface IntacctSDKConfiguration {
+    auth: {
+        senderId: string;
+        senderPassword: string;
+        companyId: string;
+        userId?: string;
+        password?: string;
+        sessionId?: string;
+    };
+    controlId?: string;
+    uniqueId?: boolean;
+    dtdVersion?: string;
+}
+export interface IIntacctRouteConfiguration extends hapi.RouteConfiguration {
+    handler?: IIntacctRouteHandler;
     config: {
         id: string;
     };
 }
-export declare type IPayPalRouteHandler = (request: hapi.Request, reply: hapi.ReplyNoContinue, error: any, response: any) => void;
+export declare type IIntacctRouteHandler = (request: hapi.Request, reply: hapi.ReplyNoContinue, error: any, response: any) => void;
 export interface InternalRouteConfiguration extends hapi.RouteConfiguration {
     handler?: InternalRouteHandler;
     config: {
         id: string;
     };
 }
-export declare type InternalRouteHandler = (request: hapi.Request, reply: hapi.ReplyNoContinue, ohandler: IPayPalRouteHandler) => void;
-export declare class HapiPayPal {
-    private webhookEvents;
-    private webhook;
-    private routes;
+export declare type InternalRouteHandler = (request: hapi.Request, reply: hapi.ReplyNoContinue, ohandler: IIntacctRouteHandler) => void;
+export declare class HapiIntacct {
     private server;
+    private intacct;
+    private intacctInvoice;
+    private routes;
     constructor();
     register: hapi.PluginFunction<any>;
+    private initializeInvoice();
     private buildRoutes(routes);
-    private enableWebhooks(webhook);
-    private getWebhookEventTypes();
-    private getAccountWebhooks();
-    private createWebhook(webhook);
-    private replaceWebhook(webhook);
 }
