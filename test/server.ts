@@ -11,9 +11,6 @@ export const config: index.IHapiIntacctOptions = {
             config: {
                 id: "intacct_invoice_query",
             },
-            handler: (request, reply, error, response) => {
-                reply(error || response);
-            },
         },
     ],
     sdk: {
