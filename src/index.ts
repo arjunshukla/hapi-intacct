@@ -82,7 +82,11 @@ export class HapiIntacct {
                 } else {
                     response = temp.arinvoice && temp.arinvoice.length > 0 ? temp.arinvoice : [];
                 }
-                ohandler.apply(this, [request, reply, error, response]);
+                if (ohandler) {
+                    ohandler.apply(this, [request, reply, error, response]);
+                } else {
+                    reply(error || response);
+                }
             },
             method: "GET",
             path: "/intacct/invoice",
