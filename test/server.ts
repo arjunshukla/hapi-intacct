@@ -1,15 +1,23 @@
-import * as dotenv from "dotenv";
+import * as glue from "glue";
 import * as good from "good";
 import * as hapi from "hapi";
 import * as index from "../src";
-
-dotenv.config();
 
 export const config: index.IHapiIntacctOptions = {
     routes: [
         {
             config: {
                 id: "intacct_invoice_query",
+            },
+        },
+        {
+            config: {
+                id: "intacct_invoice_read",
+            },
+        },
+        {
+            config: {
+                id: "intacct_invoice_update",
             },
         },
     ],
@@ -24,43 +32,42 @@ export const config: index.IHapiIntacctOptions = {
     },
 };
 
-export const server = new hapi.Server();
-server.connection({ port: process.env.PORT || 3000, host: process.env.IP || "0.0.0.0" });
-const hapiPaypal = new index.HapiIntacct();
-
-async function start() {
-    await server.register([{
-        options: {
-            ...config,
+const manifest = {
+    connections: [
+        {
+            host: process.env.IP || "0.0.0.0",
+            port: process.env.PORT || 3000,
         },
-        register: hapiPaypal.register,
-    },
-    {
-        options: {
-                reporters: {
-                    console: [{
-                        args: [{
-                            log: "*",
-                            response: "*",
-                        }],
-                        module: "good-squeeze",
-                        name: "Squeeze",
-                    }, {
-                        module: "good-console",
-                    }, "stdout"],
+    ],
+    registrations: [
+        {
+            plugin: {
+                options: {
+                    reporters: {
+                        console: [{
+                            args: [{
+                                log: "*",
+                                response: "*",
+                            }],
+                            module: "good-squeeze",
+                            name: "Squeeze",
+                        }, {
+                            module: "good-console",
+                        }, "stdout"],
+                    },
                 },
+                register: good.register,
             },
-        register: good.register,
-    }]);
-
-    server.start((error) => {
-        if (error) {
-            throw error;
-        }
-        server.log("info", `Server running at: ${server.info.uri}`);
-    });
-}
+        },
+        {
+            plugin: {
+                options: config,
+                register: new index.HapiIntacct().register,
+            },
+        },
+    ],
+};
 
 if (!module.parent) {
-    start();
+    glue.compose(manifest).then((server: hapi.Server) => server.start());
 }
