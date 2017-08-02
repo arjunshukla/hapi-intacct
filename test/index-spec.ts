@@ -1,6 +1,6 @@
 import * as tape from "blue-tape";
 import * as hapi from "hapi";
-import * as paypal from "paypal-rest-sdk";
+import * as intacct from "intacct-api";
 import * as sinon from "sinon";
 import * as index from "../src";
 

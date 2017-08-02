@@ -40,6 +40,8 @@ export declare class HapiIntacct {
     private intacctInvoice;
     private routes;
     constructor();
+    private read(RECORDNO);
+    private update(updateObj);
     register: hapi.PluginFunction<any>;
     private initializeInvoice();
     private buildRoutes(routes);
