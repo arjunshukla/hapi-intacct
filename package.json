@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A hapi plugin to interface with Intacct API",
   "license": "MIT",
-  "repository": "https://github.com/trainerbill/hapi-paypal",
+  "repository": "https://github.com/arjunshukla/hapi-intacct",
   "author": "Arjun Shukla",
   "keywords": [],
   "files": [
