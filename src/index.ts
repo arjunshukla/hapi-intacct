@@ -1,3 +1,4 @@
+import * as boom from "boom";
 import * as hapi from "hapi";
 import * as intacctapi from "intacct-api";
 import * as Joi from "joi";
@@ -73,8 +74,6 @@ export class HapiIntacct {
             handler: async (request, reply, ohandler) => {
                 let error = null;
                 let response = null;
-                // tslint:disable-next-line:max-line-length
-
                 const query = intacctapi.IntacctApi.readByQuery({ object: "ARINVOICE", query: request.query.query });
                 await this.intacct.request(query);
                 const temp = query.get();
@@ -94,7 +93,6 @@ export class HapiIntacct {
             path: "/intacct/invoice",
         });
 
-// read
         this.routes.set("intacct_invoice_read", {
             config: {
                 id: "intacct_invoice_read",
@@ -102,25 +100,24 @@ export class HapiIntacct {
             handler: async (request, reply, ohandler) => {
                 let error = null;
                 let response = null;
-                const recordno: number = +request.params.recordno;
-                const intacctInvoiceArray = await this.read(recordno);
-
-                if (intacctInvoiceArray.length === 0) {
-                    response = [];
+                const read = intacctapi.IntacctApi.read({ object: "ARINVOICE", keys: request.params.recordno });
+                await this.intacct.request(read);
+                if (!read.isSuccessful()) {
+                    error = new Error(JSON.stringify(read.result.errors));
                 } else {
-                    response = intacctInvoiceArray;
+                    response = read.get("ARINVOICE")[0];
                 }
+
                 if (ohandler) {
                     ohandler.apply(this, [request, reply, error, response]);
                 } else {
-                    reply(error || response);
+                    return error ? reply(boom.badRequest(error.message)) : reply(response);
                 }
             },
             method: "GET",
             path: "/intacct/invoice/{recordno}",
         });
 
-// update
         this.routes.set("intacct_invoice_update", {
             config: {
                 id: "intacct_invoice_update",
@@ -128,42 +125,26 @@ export class HapiIntacct {
             handler: async (request, reply, ohandler) => {
                 let error = null;
                 let response = null;
-
-                try {
-                    // Update Intacct
-                    this.update(request.payload);
-                    response = "Invoice updated successfully!";
-                } catch (err) {
-                  error = err;
+                // tslint:disable-next-line:max-line-length
+                const update = intacctapi.IntacctApi.update({ ARINVOICE: { RECORDNO: request.params.recordno, ...request.payload } });
+                await this.intacct.request(update);
+                if (!update.isSuccessful()) {
+                    error = new Error(JSON.stringify(update.result.errors));
+                } else {
+                    response = update.get()[0].arinvoice[0];
                 }
 
                 if (ohandler) {
                     ohandler.apply(this, [request, reply, error, response]);
                 } else {
-                    reply(error || response);
+                    return error ? reply(boom.badRequest(error.message)) : reply(response);
                 }
             },
             method: "PUT",
             path: "/intacct/invoice/{recordno}",
         });
 
-        // TODO: Add hapi routes for: arpayment, arpaymentdetail
-    }
-
-    private async read(RECORDNO : number){
-        const cid = intacctapi.IntacctApi.read({ object: 'ARINVOICE', keys: RECORDNO });
-        await this.intacct.request(cid);
-        return cid.data.ARINVOICE[0] || [];
-    }
-
-
-    private async update(updateObj : object) {
-        const cid = intacctapi.IntacctApi.update(updateObj);
-        let result = await this.intacct.request(cid);
-        if (!cid.isSuccessful()) {
-            throw new Error(result.rawPayload);
-        }
-        return cid;
+        // TODO: Add hapi routes for: arpayment, arpaymentdetail, arinvoice-inspect
     }
 
     // tslint:disable-next-line:max-line-length
@@ -180,6 +161,9 @@ export class HapiIntacct {
                 sessionId: Joi.string().min(1),
                 userId: Joi.string().min(1),
             }).required(),
+            controlId: Joi.string(),
+            dtdVersion: Joi.string(),
+            uniqueId: Joi.bool(),
         });
 
         const sdkValidate = Joi.validate(options.sdk, sdkSchema);
@@ -195,18 +179,18 @@ export class HapiIntacct {
             this.buildRoutes(options.routes);
         }
 
-        this.initializeInvoice();
+        // this.initializeInvoice();
 
         next();
     }
-
+    /*
     private async initializeInvoice() {
         const inspectInvoice = intacctapi.IntacctApi.inspect({ object: "ARINVOICE" });
         await this.intacct.request([inspectInvoice]);
         this.intacctInvoice = inspectInvoice.get();
         this.server.log("info", `Intacct Invoice ${JSON.stringify(this.intacctInvoice)}`);
     }
-
+    */
     private buildRoutes(routes: [Partial<IIntacctRouteConfiguration>]) {
         routes.forEach((route) =>  {
             const dRoute = this.routes.get(route.config.id);
