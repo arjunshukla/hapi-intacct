@@ -117,7 +117,7 @@ export class HapiIntacct {
                 }
             },
             method: "GET",
-            path: "/intacct/invoice/{recordno}}",
+            path: "/intacct/invoice/{recordno}",
         });
 
 // update
@@ -144,7 +144,7 @@ export class HapiIntacct {
                 }
             },
             method: "PUT",
-            path: "/intacct/invoice/{recordno}}",
+            path: "/intacct/invoice/{recordno}",
         });
 
         // TODO: Add hapi routes for: arpayment, arpaymentdetail
