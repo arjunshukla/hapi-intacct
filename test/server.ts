@@ -20,6 +20,16 @@ export const config: index.IHapiIntacctOptions = {
                 id: "intacct_invoice_update",
             },
         },
+          {
+            config: {
+                id: "intacct_invoice_create_payment",
+            },
+        },
+          {
+            config: {
+                id: "intacct_customer_add_bankaccount",
+            },
+        },
     ],
     sdk: {
         auth: {
