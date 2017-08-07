@@ -209,6 +209,58 @@ export class HapiIntacct {
       path: "/intacct/invoice/payment",
     });
 
+    // apply_arpayment
+    this.routes.set("intacct_invoice_apply_payment", {
+      config: {
+        id: "intacct_invoice_apply_payment",
+      },
+      handler: async (request, reply, ohandler) => {
+        let error = null;
+        let response = null;
+
+        const reqBody = request.payload;
+        const date = new Date();
+        const condtrolFunctionObj = {
+          arpaymentitem: {
+            amount: reqBody.amount,
+            invoicekey: reqBody.invoicekey,
+          },
+          bankaccountid: reqBody.bankaccountid,
+          basecurr: reqBody.basecurr,
+          currency: reqBody.currency,
+          customerid: reqBody.customerid,
+          datereceived: {
+            day: date.getDay(),
+            month: date.getMonth(),
+            year: date.getFullYear(),
+          },
+          exchratetype: reqBody.exchratetype,
+          overpaydeptid: reqBody.overpaydeptid,
+          overpaylocid: reqBody.overpaylocid,
+          paymentamount: reqBody.paymentamount,
+          paymentmethod: reqBody.paymentmethod,
+          refid: reqBody.refid,
+          translatedamount: reqBody.translatedamount,
+        };
+
+        const cid = new intacctapi.ControlFunction("apply_arpayment", request.payload, null, true);
+        await this.intacct.request(cid);
+        if (!cid.isSuccessful()) {
+          error = new Error(JSON.stringify(cid.result.errors));
+        } else {
+          response = cid.get()[0].arinvoice[0];
+        }
+
+        if (ohandler) {
+          ohandler.apply(this, [request, reply, error, response]);
+        } else {
+          return error ? reply(boom.badRequest(error.message)) : reply(response);
+        }
+      },
+      method: "POST",
+      path: "/intacct/invoice/applypayment",
+    });
+
 // add customer bank account
     this.routes.set("intacct_customer_add_bankaccount", {
       config: {

@@ -32,6 +32,11 @@ export const config: index.IHapiIntacctOptions = {
         },
         {
             config: {
+                id: "intacct_invoice_apply_payment",
+            },
+        },
+          {
+            config: {
                 id: "intacct_invoice_inspect",
             },
         },
