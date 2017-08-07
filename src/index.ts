@@ -266,21 +266,20 @@ export class HapiIntacct {
      }); */
 
     // arinvoice-inspect
-    /* this.routes.set("intacct_invoice_update", {
+    this.routes.set("intacct_invoice_inspect", {
          config: {
-             id: "intacct_invoice_update",
+             id: "intacct_invoice_inspect",
          },
          handler: async (request, reply, ohandler) => {
              let error = null;
              let response = null;
              // tslint:disable-next-line:max-line-length
-             const update = intacctapi.IntacctApi.update
-             ({ ARINVOICE: { RECORDNO: request.params.recordno, ...request.payload } });
-             await this.intacct.request(update);
-             if (!update.isSuccessful()) {
-                 error = new Error(JSON.stringify(update.result.errors));
+             const inspect = intacctapi.IntacctApi.inspect({ object: "ARINVOICE" });
+             await this.intacct.request(inspect);
+             if (!inspect.isSuccessful()) {
+                 error = new Error(JSON.stringify(inspect.result.errors));
              } else {
-                 response = update.get()[0].arinvoice[0];
+                 response = inspect.get();
              }
 
              if (ohandler) {
@@ -289,9 +288,9 @@ export class HapiIntacct {
                  return error ? reply(boom.badRequest(error.message)) : reply(response);
              }
          },
-         method: "PUT",
-         path: "/intacct/invoice/{recordno}",
-     }); */
+         method: "OPTIONS",
+         path: "/intacct/invoice",
+     });
   }
 
   // tslint:disable-next-line:max-line-length
