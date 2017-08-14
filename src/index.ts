@@ -196,7 +196,7 @@ export class HapiIntacct {
         if (!cid.isSuccessful()) {
           error = new Error(JSON.stringify(cid.result.errors));
         } else {
-          response = cid.get()[0].arinvoice[0];
+          response = cid;
         }
 
         if (ohandler) {
