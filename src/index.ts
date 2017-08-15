@@ -322,6 +322,36 @@ export class HapiIntacct {
       path: "/intacct/glaccount",
     });
 
+    // List Checking accounts
+    this.routes.set("intacct_checkingaccount_query", {
+      config: {
+        id: "intacct_checkingaccount_query",
+      },
+      handler: async (request, reply, ohandler) => {
+        let error = null;
+        let response = null;
+        const queryParams = {
+          fields: request.query.fields || null,
+          object: "CHECKINGACCOUNT",
+          query: request.query.query,
+        };
+        const query = intacctapi.IntacctApi.readByQuery(queryParams);
+        await this.intacct.request(query);
+        const temp = query.get();
+        if (!query.isSuccessful()) {
+          error = new Error(JSON.stringify(query.result.errors));
+        } else {
+          response = temp.checkingaccount && temp.checkingaccount.length > 0 ? temp.checkingaccount : [];
+        }
+        if (ohandler) {
+          ohandler.apply(this, [request, reply, error, response]);
+        } else {
+          reply(error || response);
+        }
+      },
+      method: "GET",
+      path: "/intacct/checkingaccount",
+    });
 // list of checking accounts... should be exactly like the invoice query route
 
     // arpaymentdetail
