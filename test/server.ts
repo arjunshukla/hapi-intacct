@@ -22,7 +22,7 @@ export const config: index.IHapiIntacctOptions = {
         },
         {
             config: {
-                id: "intacct_invoice_create_payment",
+                id: "intacct_payment_create",
             },
         },
         {
