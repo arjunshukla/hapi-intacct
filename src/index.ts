@@ -8,6 +8,7 @@ import * as intacctapi from "intacct-api";
 // import * as intacctControlFunction from intacctapi.intacctControlFunction;
 import * as Joi from "joi";
 import * as pkg from "../package.json";
+export * from "./joi";
 
 export type Partial<T> = {
   [P in keyof T]?: T[P];
@@ -136,9 +137,9 @@ export class HapiIntacct {
 
     // TODO: Add hapi routes for: arpaymentdetail, arinvoice-inspect
 
-    this.routes.set("intacct_invoice_create_payment", {
+    this.routes.set("intacct_payment_create", {
       config: {
-        id: "intacct_invoice_create_payment",
+        id: "intacct_payment_create",
       },
       handler: async (request, reply, ohandler) => {
         let error = null;
@@ -185,7 +186,7 @@ export class HapiIntacct {
         }
       },
       method: "POST",
-      path: "/intacct/invoice/payment",
+      path: "/intacct/payment",
     });
 
     this.routes.set("intacct_invoice_apply_payment", {
