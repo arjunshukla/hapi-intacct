@@ -40,6 +40,11 @@ export const config: index.IHapiIntacctOptions = {
                 id: "intacct_invoice_inspect",
             },
         },
+          {
+            config: {
+              id: "intacct_glaccount_query",
+            },
+          },
     ],
     sdk: {
         auth: {

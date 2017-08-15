@@ -289,6 +289,41 @@ export class HapiIntacct {
       path: "/intacct/customer/addbank",
     });
 
+// TODO: Add GET checking account APIs for list with filter
+
+// List GL accounts
+    this.routes.set("intacct_glaccount_query", {
+      config: {
+        id: "intacct_glaccount_query",
+      },
+      handler: async (request, reply, ohandler) => {
+        let error = null;
+        let response = null;
+        const queryParams = {
+          fields: request.query.fields || null,
+          object: "GLACCOUNT",
+          query: request.query.query,
+        };
+        const query = intacctapi.IntacctApi.readByQuery(queryParams);
+        await this.intacct.request(query);
+        const temp = query.get();
+        if (!query.isSuccessful()) {
+          error = new Error(JSON.stringify(query.result.errors));
+        } else {
+          response = temp.glaccount && temp.glaccount.length > 0 ? temp.glaccount : [];
+        }
+        if (ohandler) {
+          ohandler.apply(this, [request, reply, error, response]);
+        } else {
+          reply(error || response);
+        }
+      },
+      method: "GET",
+      path: "/intacct/glaccount",
+    });
+
+// list of checking accounts... should be exactly like the invoice query route
+
     // arpaymentdetail
     /* this.routes.set("intacct_invoice_update", {
          config: {
