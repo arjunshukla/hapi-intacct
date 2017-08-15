@@ -77,27 +77,7 @@ export class HapiIntacct {
         id: "intacct_invoice_query",
       },
       handler: async (request, reply, ohandler) => {
-        let error = null;
-        let response = null;
-        const queryParams = {
-          fields: request.query.fields || null,
-          object: "ARINVOICE",
-          query: request.query.query,
-        };
-        const query = intacctapi.IntacctApi.readByQuery(queryParams);
-        await this.intacct.request(query);
-        const temp = query.get();
-        if (!query.isSuccessful()) {
-          error = new Error(JSON.stringify(query.result.errors));
-        } else {
-          response = temp.arinvoice && temp.arinvoice.length > 0 ? temp.arinvoice : [];
-        }
-        if (ohandler) {
-          ohandler.apply(this, [request, reply, error, response]);
-        } else {
-          reply(error || response);
-        }
-
+        this.callReadByQuery(request, reply, ohandler);
       },
       method: "GET",
       path: "/intacct/invoice",
@@ -154,9 +134,8 @@ export class HapiIntacct {
       path: "/intacct/invoice/{recordno}",
     });
 
-    // TODO: Add hapi routes for: arpayment, arpaymentdetail, arinvoice-inspect
+    // TODO: Add hapi routes for: arpaymentdetail, arinvoice-inspect
 
-    // arpayment
     this.routes.set("intacct_invoice_create_payment", {
       config: {
         id: "intacct_invoice_create_payment",
@@ -209,7 +188,6 @@ export class HapiIntacct {
       path: "/intacct/invoice/payment",
     });
 
-    // apply_arpayment
     this.routes.set("intacct_invoice_apply_payment", {
       config: {
         id: "intacct_invoice_apply_payment",
@@ -261,7 +239,6 @@ export class HapiIntacct {
       path: "/intacct/invoice/applypayment",
     });
 
-// add customer bank account
     this.routes.set("intacct_customer_add_bankaccount", {
       config: {
         id: "intacct_customer_add_bankaccount",
@@ -289,70 +266,27 @@ export class HapiIntacct {
       path: "/intacct/customer/addbank",
     });
 
-// TODO: Add GET checking account APIs for list with filter
-
-// List GL accounts
     this.routes.set("intacct_glaccount_query", {
       config: {
         id: "intacct_glaccount_query",
       },
       handler: async (request, reply, ohandler) => {
-        let error = null;
-        let response = null;
-        const queryParams = {
-          fields: request.query.fields || null,
-          object: "GLACCOUNT",
-          query: request.query.query,
-        };
-        const query = intacctapi.IntacctApi.readByQuery(queryParams);
-        await this.intacct.request(query);
-        const temp = query.get();
-        if (!query.isSuccessful()) {
-          error = new Error(JSON.stringify(query.result.errors));
-        } else {
-          response = temp.glaccount && temp.glaccount.length > 0 ? temp.glaccount : [];
-        }
-        if (ohandler) {
-          ohandler.apply(this, [request, reply, error, response]);
-        } else {
-          reply(error || response);
-        }
+        this.callReadByQuery(request, reply, ohandler);
       },
       method: "GET",
       path: "/intacct/glaccount",
     });
 
-    // List Checking accounts
     this.routes.set("intacct_checkingaccount_query", {
       config: {
         id: "intacct_checkingaccount_query",
       },
       handler: async (request, reply, ohandler) => {
-        let error = null;
-        let response = null;
-        const queryParams = {
-          fields: request.query.fields || null,
-          object: "CHECKINGACCOUNT",
-          query: request.query.query,
-        };
-        const query = intacctapi.IntacctApi.readByQuery(queryParams);
-        await this.intacct.request(query);
-        const temp = query.get();
-        if (!query.isSuccessful()) {
-          error = new Error(JSON.stringify(query.result.errors));
-        } else {
-          response = temp.checkingaccount && temp.checkingaccount.length > 0 ? temp.checkingaccount : [];
-        }
-        if (ohandler) {
-          ohandler.apply(this, [request, reply, error, response]);
-        } else {
-          reply(error || response);
-        }
+        this.callReadByQuery(request, reply, ohandler);
       },
       method: "GET",
       path: "/intacct/checkingaccount",
     });
-// list of checking accounts... should be exactly like the invoice query route
 
     // arpaymentdetail
     /* this.routes.set("intacct_invoice_update", {
@@ -384,30 +318,30 @@ export class HapiIntacct {
 
     // arinvoice-inspect
     this.routes.set("intacct_invoice_inspect", {
-         config: {
-             id: "intacct_invoice_inspect",
-         },
-         handler: async (request, reply, ohandler) => {
-             let error = null;
-             let response = null;
-             // tslint:disable-next-line:max-line-length
-             const inspect = intacctapi.IntacctApi.inspect({ object: "ARINVOICE" });
-             await this.intacct.request(inspect);
-             if (!inspect.isSuccessful()) {
-                 error = new Error(JSON.stringify(inspect.result.errors));
-             } else {
-                 response = inspect.get();
-             }
+      config: {
+        id: "intacct_invoice_inspect",
+      },
+      handler: async (request, reply, ohandler) => {
+        let error = null;
+        let response = null;
+        // tslint:disable-next-line:max-line-length
+        const inspect = intacctapi.IntacctApi.inspect({ object: "ARINVOICE" });
+        await this.intacct.request(inspect);
+        if (!inspect.isSuccessful()) {
+          error = new Error(JSON.stringify(inspect.result.errors));
+        } else {
+          response = inspect.get();
+        }
 
-             if (ohandler) {
-                 ohandler.apply(this, [request, reply, error, response]);
-             } else {
-                 return error ? reply(boom.badRequest(error.message)) : reply(response);
-             }
-         },
-         method: "OPTIONS",
-         path: "/intacct/invoice",
-     });
+        if (ohandler) {
+          ohandler.apply(this, [request, reply, error, response]);
+        } else {
+          return error ? reply(boom.badRequest(error.message)) : reply(response);
+        }
+      },
+      method: "OPTIONS",
+      path: "/intacct/invoice",
+    });
   }
 
   // tslint:disable-next-line:max-line-length
@@ -467,5 +401,48 @@ export class HapiIntacct {
       };
       this.server.route({ ...route, ...nRoute });
     });
+  }
+
+  private async  callReadByQuery(request: hapi.Request, reply: hapi.ReplyNoContinue, ohandler: IIntacctRouteHandler) {
+    const values: any = this.getReadByQueryPathValues(request.path);
+
+    let error = null;
+    let response = null;
+    const queryParams = {
+      fields: request.query.fields || null,
+      object: values.queryObject,
+      query: request.query.query,
+    };
+
+    const query = intacctapi.IntacctApi.readByQuery(queryParams);
+    await this.intacct.request(query);
+    const temp = query.get();
+    if (!query.isSuccessful()) {
+      error = new Error(JSON.stringify(query.result.errors));
+    } else {
+      const arrResult = temp[values.intacctObject];
+      response = arrResult && arrResult.length > 0 ? arrResult : [];
+    }
+    if (ohandler) {
+      ohandler.apply(this, [request, reply, error, response]);
+    } else {
+      reply(error || response);
+    }
+  }
+
+  private getReadByQueryPathValues(path: string) {
+    switch (path) {
+      case "/intacct/checkingaccount":
+        return { queryObject: "CHECKINGACCOUNT", intacctObject: "checkingaccount" };
+
+      case "/intacct/invoice":
+        return { queryObject: "ARINVOICE", intacctObject: "arinvoice" };
+
+      case "/intacct/glaccount":
+        return { queryObject: "GLACCOUNT", intacctObject: "glaccount" };
+
+      default:
+        return {};
+    }
   }
 }
