@@ -34,11 +34,13 @@ export interface IntacctSDKConfiguration {
   dtdVersion?: string;
 }
 
+export interface IIntacctRouteConfigurationAdditional extends hapi.RouteAdditionalConfigurationOptions {
+  id: string;
+}
+
 export interface IIntacctRouteConfiguration extends hapi.RouteConfiguration {
   handler?: IIntacctRouteHandler;
-  config: {
-    id: string;
-  };
+  config: IIntacctRouteConfigurationAdditional;
 }
 
 export type IIntacctRouteHandler = (
