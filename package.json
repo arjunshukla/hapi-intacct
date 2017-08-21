@@ -1,6 +1,6 @@
 {
   "name": "hapi-intacct",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "A hapi plugin to interface with Intacct API",
   "license": "MIT",
   "repository": "https://github.com/arjunshukla/hapi-intacct",
