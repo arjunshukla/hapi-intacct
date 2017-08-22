@@ -16,7 +16,7 @@ export type Partial<T> = {
 
 export interface IHapiIntacctOptions {
   sdk: IntacctSDKConfiguration;
-  routes?: [Partial<IIntacctRouteConfiguration>];
+  routes?: Array<Partial<IIntacctRouteConfiguration>>;
   cron?: any;  // For later
 }
 
@@ -392,7 +392,7 @@ export class HapiIntacct {
       this.server.log("info", `Intacct Invoice ${JSON.stringify(this.intacctInvoice)}`);
   }
   */
-  private buildRoutes(routes: [Partial<IIntacctRouteConfiguration>]) {
+  private buildRoutes(routes: Array<Partial<IIntacctRouteConfiguration>>) {
     routes.forEach((route) => {
       const dRoute = this.routes.get(route.config.id);
       const nRoute: hapi.RouteConfiguration = {
