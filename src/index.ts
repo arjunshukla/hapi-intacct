@@ -1,11 +1,6 @@
 import * as boom from "boom";
 import * as hapi from "hapi";
 import * as intacctapi from "intacct-api";
-// import { defaultControlFunction as controlFunction } from "intacct-api";
-// const test = intacctapi.ControlFunction;
-// const intacctControlFunction = require("intacct-api").ControlFunction;
-// import { ControlFunction } from 'intacct-api/src/control_function';
-// import * as intacctControlFunction from intacctapi.intacctControlFunction;
 import * as Joi from "joi";
 import * as pkg from "../package.json";
 export * from "./joi";
@@ -91,8 +86,6 @@ export class HapiIntacct {
         id: "intacct_invoice_read",
       },
       handler: async (request, reply, ohandler) => {
-        // let error = null;
-        // let response = null;
         const read = intacctapi.IntacctApi.read({ object: "ARINVOICE", keys: request.params.recordno });
         this.commonResponseHandler(read, request, reply, ohandler);
       },
@@ -105,76 +98,23 @@ export class HapiIntacct {
         id: "intacct_invoice_update",
       },
       handler: async (request, reply, ohandler) => {
-        let error = null;
-        let response = null;
         // tslint:disable-next-line:max-line-length
         const update = intacctapi.IntacctApi.update({ ARINVOICE: { RECORDNO: request.params.recordno, ...request.payload } });
-        await this.intacct.request(update);
-        if (!update.isSuccessful()) {
-          error = new Error(JSON.stringify(update.result.errors));
-        } else {
-          response = update.get()[0].arinvoice[0];
-        }
-
-        if (ohandler) {
-          ohandler.apply(this, [request, reply, error, response]);
-        } else {
-          return error ? reply(boom.badRequest(error.message)) : reply(response);
-        }
+        this.commonResponseHandler(update, request, reply, ohandler);
       },
       method: "PUT",
       path: "/intacct/invoice/{recordno}",
     });
 
-    // TODO: Add hapi routes for: arpaymentdetail, arinvoice-inspect
+    // TODO: Add hapi routes for: arpaymentdetail
 
     this.routes.set("intacct_payment_create", {
       config: {
         id: "intacct_payment_create",
       },
       handler: async (request, reply, ohandler) => {
-        let error = null;
-        let response = null;
-
-        const reqBody = request.payload;
-        const date = new Date();
-        const condtrolFunctionObj = {
-          arpaymentitem: {
-            amount: reqBody.amount,
-            invoicekey: reqBody.invoicekey,
-          },
-          bankaccountid: reqBody.bankaccountid,
-          basecurr: reqBody.basecurr,
-          currency: reqBody.currency,
-          customerid: reqBody.customerid,
-          datereceived: {
-            day: date.getDay(),
-            month: date.getMonth(),
-            year: date.getFullYear(),
-          },
-          exchratetype: reqBody.exchratetype,
-          overpaydeptid: reqBody.overpaydeptid,
-          overpaylocid: reqBody.overpaylocid,
-          paymentamount: reqBody.paymentamount,
-          paymentmethod: reqBody.paymentmethod,
-          refid: reqBody.refid,
-          translatedamount: reqBody.translatedamount,
-        };
-
         const cid = new intacctapi.ControlFunction("create_arpayment", request.payload, null, true);
-        // const cid = intacctapi.IntacctApi.create({ ARPAYMENT: { ...request.payload } });
-        await this.intacct.request(cid);
-        if (!cid.isSuccessful()) {
-          error = new Error(JSON.stringify(cid.result.errors));
-        } else {
-          response = cid;
-        }
-
-        if (ohandler) {
-          ohandler.apply(this, [request, reply, error, response]);
-        } else {
-          return error ? reply(boom.badRequest(error.message)) : reply(response);
-        }
+        this.commonResponseHandler(cid, request, reply, ohandler);
       },
       method: "POST",
       path: "/intacct/payment",
@@ -185,47 +125,8 @@ export class HapiIntacct {
         id: "intacct_invoice_apply_payment",
       },
       handler: async (request, reply, ohandler) => {
-        let error = null;
-        let response = null;
-
-        const reqBody = request.payload;
-        const date = new Date();
-        const condtrolFunctionObj = {
-          arpaymentitem: {
-            amount: reqBody.amount,
-            invoicekey: reqBody.invoicekey,
-          },
-          bankaccountid: reqBody.bankaccountid,
-          basecurr: reqBody.basecurr,
-          currency: reqBody.currency,
-          customerid: reqBody.customerid,
-          datereceived: {
-            day: date.getDay(),
-            month: date.getMonth(),
-            year: date.getFullYear(),
-          },
-          exchratetype: reqBody.exchratetype,
-          overpaydeptid: reqBody.overpaydeptid,
-          overpaylocid: reqBody.overpaylocid,
-          paymentamount: reqBody.paymentamount,
-          paymentmethod: reqBody.paymentmethod,
-          refid: reqBody.refid,
-          translatedamount: reqBody.translatedamount,
-        };
-
         const cid = new intacctapi.ControlFunction("apply_arpayment", request.payload, null, true);
-        await this.intacct.request(cid);
-        if (!cid.isSuccessful()) {
-          error = new Error(JSON.stringify(cid.result.errors));
-        } else {
-          response = cid.get()[0].arinvoice[0];
-        }
-
-        if (ohandler) {
-          ohandler.apply(this, [request, reply, error, response]);
-        } else {
-          return error ? reply(boom.badRequest(error.message)) : reply(response);
-        }
+        this.commonResponseHandler(cid, request, reply, ohandler);
       },
       method: "POST",
       path: "/intacct/invoice/applypayment",
@@ -236,23 +137,8 @@ export class HapiIntacct {
         id: "intacct_customer_add_bankaccount",
       },
       handler: async (request, reply, ohandler) => {
-        let error = null;
-        let response = null;
-
         const cid = new intacctapi.ControlFunction("create_customerbankaccount", request.payload, null, true);
-        // const cid = intacctapi.IntacctApi.create({ ARPAYMENT: { ...request.payload } });
-        await this.intacct.request(cid);
-        if (!cid.isSuccessful()) {
-          error = new Error(JSON.stringify(cid.result.errors));
-        } else {
-          response = cid.result;
-        }
-
-        if (ohandler) {
-          ohandler.apply(this, [request, reply, error, response]);
-        } else {
-          return error ? reply(boom.badRequest(error.message)) : reply(response);
-        }
+        this.commonResponseHandler(cid, request, reply, ohandler);
       },
       method: "POST",
       path: "/intacct/customer/addbank",
@@ -280,56 +166,13 @@ export class HapiIntacct {
       path: "/intacct/checkingaccount",
     });
 
-    // arpaymentdetail
-    /* this.routes.set("intacct_invoice_update", {
-         config: {
-             id: "intacct_invoice_update",
-         },
-         handler: async (request, reply, ohandler) => {
-             let error = null;
-             let response = null;
-             tslint:disable-next-line:max-line-length
-             const update = intacctapi.IntacctApi.update
-             ({ ARINVOICE: { RECORDNO: request.params.recordno, ...request.payload } });
-             await this.intacct.request(update);
-             if (!update.isSuccessful()) {
-                 error = new Error(JSON.stringify(update.result.errors));
-             } else {
-                 response = update.get()[0].arinvoice[0];
-             }
-
-             if (ohandler) {
-                 ohandler.apply(this, [request, reply, error, response]);
-             } else {
-                 return error ? reply(boom.badRequest(error.message)) : reply(response);
-             }
-         },
-         method: "PUT",
-         path: "/intacct/invoice/{recordno}",
-     }); */
-
-    // arinvoice-inspect
     this.routes.set("intacct_invoice_inspect", {
       config: {
         id: "intacct_invoice_inspect",
       },
       handler: async (request, reply, ohandler) => {
-        let error = null;
-        let response = null;
-        // tslint:disable-next-line:max-line-length
         const inspect = intacctapi.IntacctApi.inspect({ object: "ARINVOICE" });
-        await this.intacct.request(inspect);
-        if (!inspect.isSuccessful()) {
-          error = new Error(JSON.stringify(inspect.result.errors));
-        } else {
-          response = inspect.get();
-        }
-
-        if (ohandler) {
-          ohandler.apply(this, [request, reply, error, response]);
-        } else {
-          return error ? reply(boom.badRequest(error.message)) : reply(response);
-        }
+        this.commonResponseHandler(inspect, request, reply, ohandler);
       },
       method: "OPTIONS",
       path: "/intacct/invoice",
@@ -367,20 +210,9 @@ export class HapiIntacct {
     if (options.routes && options.routes.length > 0) {
       this.buildRoutes(options.routes);
     }
-
-    // this.initializeInvoice();
-
     next();
   }
 
-  /*
-  private async initializeInvoice() {
-      const inspectInvoice = intacctapi.IntacctApi.inspect({ object: "ARINVOICE" });
-      await this.intacct.request([inspectInvoice]);
-      this.intacctInvoice = inspectInvoice.get();
-      this.server.log("info", `Intacct Invoice ${JSON.stringify(this.intacctInvoice)}`);
-  }
-  */
   private buildRoutes(routes: Array<Partial<IIntacctRouteConfiguration>>) {
     routes.forEach((route) => {
       const dRoute = this.routes.get(route.config.id);
