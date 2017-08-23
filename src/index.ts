@@ -91,21 +91,10 @@ export class HapiIntacct {
         id: "intacct_invoice_read",
       },
       handler: async (request, reply, ohandler) => {
-        let error = null;
-        let response = null;
+        // let error = null;
+        // let response = null;
         const read = intacctapi.IntacctApi.read({ object: "ARINVOICE", keys: request.params.recordno });
-        await this.intacct.request(read);
-        if (!read.isSuccessful()) {
-          error = new Error(JSON.stringify(read.result.errors));
-        } else {
-          response = read.get("ARINVOICE")[0];
-        }
-
-        if (ohandler) {
-          ohandler.apply(this, [request, reply, error, response]);
-        } else {
-          return error ? reply(boom.badRequest(error.message)) : reply(response);
-        }
+        this.commonResponseHandler(read, request, reply, ohandler);
       },
       method: "GET",
       path: "/intacct/invoice/{recordno}",
@@ -446,6 +435,24 @@ export class HapiIntacct {
 
       default:
         return {};
+    }
+  }
+
+  // tslint:disable-next-line:max-line-length
+  private async commonResponseHandler(cid: any /*intacctapi.IntacctApi.ControlFunction*/, request: hapi.Request, reply: hapi.ReplyNoContinue, ohandler: IIntacctRouteHandler) {
+    let error = null;
+    let response = null;
+    await this.intacct.request(cid);
+    if (!cid.isSuccessful()) {
+      error = new Error(JSON.stringify(cid.result.errors));
+    } else {
+      response = cid;
+    }
+
+    if (ohandler) {
+      ohandler.apply(this, [request, reply, error, response]);
+    } else {
+      return error ? reply(boom.badRequest(error.message)) : reply(response);
     }
   }
 }
