@@ -4,6 +4,7 @@ import * as intacct from "intacct-api";
 import * as sinon from "sinon";
 import * as index from "../src";
 
+// Add tests here
 // const hapiPaypal = new index.HapiPayPal();
 
 // tape("should register plugin", async (t) => {
