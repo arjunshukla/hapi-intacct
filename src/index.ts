@@ -284,7 +284,38 @@ export class HapiIntacct {
     if (ohandler) {
       ohandler.apply(this, [request, reply, error, response]);
     } else {
-      return error ? reply(boom.badRequest(error.message)) : reply(response);
+      if (error) {
+        return error ? reply(boom.badRequest(error.message)) : reply(response);
+      }
+
+      response = this.filterIntacctResponse(cid);
+
+      return reply(response);
+    }
+  }
+
+  private filterIntacctResponse(cid: any) {
+    switch (cid.name) {
+      case "read":
+        return cid.get("ARINVOICE")[0];
+
+      case "update":
+        return cid.get()[0].arinvoice[0];
+
+      case "create_arpayment":
+        return cid;
+
+      case "apply_arpayment":
+        return cid.get()[0].arinvoice[0];
+
+      case "create_customerbankaccount":
+       return cid.result;
+
+      case "inspect":
+       return cid.get();
+
+      default:
+        return cid;
     }
   }
 }
